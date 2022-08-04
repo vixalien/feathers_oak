@@ -1,11 +1,11 @@
 export {
   Application as Oak,
   Context,
-  Router as OakRouter,
+  Router,
 } from "https://deno.land/x/oak@v10.6.0/mod.ts";
 
 export type {
-  Middleware as OakMiddleware,
+  Middleware,
 } from "https://deno.land/x/oak@v10.6.0/mod.ts";
 
 export {
@@ -17,7 +17,7 @@ export {
 export type {
   Application as Feathers,
   HookContext,
-  Params as FeathersParams,
+  Params,
   Service,
 } from "https://deno.land/x/feathers@v5.0.0-pre.27/mod.ts";
 
@@ -31,5 +31,5 @@ export {
 } from "https://esm.sh/@feathersjs/transport-commons@5.0.0-pre.27";
 
 export type {
-  Router,
+  Router as FeathersRouter,
 } from "https://unpkg.com/@feathersjs/transport-commons@5.0.0-pre.27/lib/routing/router.d.ts";

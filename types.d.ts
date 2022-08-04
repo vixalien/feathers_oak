@@ -1,9 +1,9 @@
 // deno-lint-ignore-file no-explicit-any
 import {
   Feathers,
-  FeathersParams,
+  Params,
   HookContext,
-  OakMiddleware,
+  Middleware as OakMiddleware,
   Router,
   Service,
 } from "./deps.ts";
@@ -27,5 +27,5 @@ export interface AppState {
   app: RoutedFeathers;
   lookup?: RouteLookup;
   hook?: HookContext;
-  feathers?: Partial<FeathersParams> & { [key: string]: any };
+  feathers?: Partial<Params> & { [key: string]: any };
 }

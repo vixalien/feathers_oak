@@ -1,14 +1,13 @@
-import { restRouter } from "./mod.ts";
-import { Oak, OakMiddleware, routing } from "./deps.ts";
-import { feathers } from "https://deno.land/x/feathers/mod.ts";
-
+import { feathers } from "https://deno.land/x/feathers@v5.0.0-pre.27/mod.ts";
 import {
   MongoClient,
   ObjectId,
 } from "https://deno.land/x/mongo@v0.31.0/mod.ts";
 
+import { restRouter } from "./mod.ts";
+import { Oak, routing, Middleware } from "./deps.ts";
+
 import { MongoService } from "../mongo/mod.ts";
-import { _ } from "../mongo/deps.ts";
 
 const client = new MongoClient();
 
@@ -24,7 +23,7 @@ await client.connect("mongodb://127.0.0.1:27017");
 const db = client.database("rwarrims");
 const users = db.collection<UserSchema>("feathers-test");
 
-const notFound: OakMiddleware = async (ctx, next) => {
+const notFound: Middleware = async (ctx, next) => {
   await next();
   ctx.response.body =
     `Cannot ${ctx.request.method} ${ctx.request.url.pathname}`;

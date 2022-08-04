@@ -6,16 +6,15 @@ import {
   getServiceOptions,
   http,
   MethodNotAllowed,
-  OakMiddleware,
-  OakRouter,
+  Router,
   routing,
 } from "./deps.ts";
 
-import { AppState, RoutedFeathers } from "./types.d.ts";
+import { AppState, RoutedFeathers, Middleware } from "./types.d.ts";
 
 const debug = console.debug.bind("feathers-oak/rest");
 
-const serviceMiddleware = (): OakMiddleware<AppState> => {
+const serviceMiddleware = (): Middleware => {
   return async (context, next) => {
     if (!context.state.lookup) {
       return next();
@@ -77,7 +76,7 @@ const serviceMiddleware = (): OakMiddleware<AppState> => {
   };
 };
 
-const initializeState = (app: RoutedFeathers): OakMiddleware<AppState> => {
+const initializeState = (app: RoutedFeathers): Middleware => {
   return (context, next) => {
     context.state.app = app;
     context.state.feathers = {
@@ -92,18 +91,18 @@ const initializeState = (app: RoutedFeathers): OakMiddleware<AppState> => {
   };
 };
 
-export const formatter: OakMiddleware<AppState> = (_, next) => {
+export const formatter: Middleware = (_, next) => {
   return next();
 };
 
 export type RestOptions = {
-  formatter?: OakMiddleware<AppState>;
+  formatter?: Middleware;
   // authentication?: AuthenticationSettings
 };
 
 export const restRouter = (
   feathersApp: Feathers,
-  options?: RestOptions | OakMiddleware<AppState>,
+  options?: RestOptions | Middleware,
 ) => {
   const routedApp = feathersApp as RoutedFeathers;
   // @ts-expect-error routing expects a different thing
@@ -112,7 +111,7 @@ export const restRouter = (
 
   const formatterMiddleware = options?.formatter || formatter;
 
-  const router = new OakRouter<AppState>();
+  const router = new Router<AppState>();
 
   router.get("/blops", (ctx) => {
     ctx.response.body =
