@@ -1,6 +1,6 @@
 # feathers_oak
 
-[Feathers][https://feathersjs.com] [Oak][https://github.com/oakserver/oak] 🦕 framework bindings and REST provider. Oak works under both Deno and NPM.
+[Feathers](https://feathersjs.com]) - [Oak](https://github.com/oakserver/oak) 🦕 framework bindings and REST provider. Oak works under both Deno and NPM.
 
 ## Usage
 
