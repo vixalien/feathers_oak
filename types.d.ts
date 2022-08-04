@@ -1,9 +1,9 @@
 // deno-lint-ignore-file no-explicit-any
 import {
   Feathers,
-  Params,
   HookContext,
   Middleware as OakMiddleware,
+  Params,
   Router,
   Service,
 } from "./deps.ts";

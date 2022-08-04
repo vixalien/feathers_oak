@@ -5,7 +5,7 @@ import {
 } from "https://deno.land/x/mongo@v0.31.0/mod.ts";
 
 import { restRouter } from "./mod.ts";
-import { Oak, routing, Middleware } from "./deps.ts";
+import { Middleware, Oak, routing } from "./deps.ts";
 
 import { MongoService } from "../mongo/mod.ts";
 

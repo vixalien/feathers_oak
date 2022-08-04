@@ -4,9 +4,7 @@ export {
   Router,
 } from "https://deno.land/x/oak@v10.6.0/mod.ts";
 
-export type {
-  Middleware,
-} from "https://deno.land/x/oak@v10.6.0/mod.ts";
+export type { Middleware } from "https://deno.land/x/oak@v10.6.0/mod.ts";
 
 export {
   createContext,
@@ -24,6 +22,15 @@ export type {
 export {
   MethodNotAllowed,
 } from "https://deno.land/x/feathers@v5.0.0-pre.27/_errors/mod.ts";
+
+export {
+  NotFound,
+} from "https://deno.land/x/feathers@v5.0.0-pre.27/_errors/mod.ts";
+
+export {
+  authenticate,
+  AuthenticationService,
+} from "https://esm.sh/@feathersjs/authentication@5.0.0-pre.27";
 
 export {
   http,

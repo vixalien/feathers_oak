@@ -10,7 +10,7 @@ import {
   routing,
 } from "./deps.ts";
 
-import { AppState, RoutedFeathers, Middleware } from "./types.d.ts";
+import { AppState, Middleware, RoutedFeathers } from "./types.d.ts";
 
 const debug = console.debug.bind("feathers-oak/rest");
 
