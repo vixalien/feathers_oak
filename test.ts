@@ -1,7 +1,6 @@
-import { rest } from "./mod.ts";
-import { routing } from "./deps.ts";
+import { restRouter } from "./mod.ts";
+import { OakMiddleware, OakRouter, Oak, routing } from "./deps.ts";
 import { feathers } from "https://deno.land/x/feathers/mod.ts";
-import { Application } from "https://deno.land/x/oak/mod.ts";
 
 import {
   MongoClient,
@@ -9,6 +8,7 @@ import {
 } from "https://deno.land/x/mongo@v0.31.0/mod.ts";
 
 import { MongoService } from "../mongo/mod.ts";
+import { _ } from "../mongo/deps.ts";
 
 const client = new MongoClient();
 
@@ -24,18 +24,26 @@ await client.connect("mongodb://127.0.0.1:27017");
 const db = client.database("rwarrims");
 const users = db.collection<UserSchema>("feathers-test");
 
+const notFound: OakMiddleware = async (ctx, next) => {
+  await next();
+  ctx.response.body = `Cannot ${ctx.request.method} ${ctx.request.url.pathname}`;
+}
+
+// initializing feathers & oak
 const app = feathers();
-/// @ts-ignore routing
-app.configure(routing())
+const site = new Oak();
+app.configure(routing() as any);
+
 app.use("users", new MongoService({
   Model: users
 }));
 
-const site = new Application();
-const res = rest(app);
-res(site);
-console.log("here");
+const rest = restRouter(app);
+
+site.use(rest.routes(), rest.allowedMethods());
+
+site.use(notFound);
+
 site.listen({
   port: 3000
-})
-  .then(l => console.log(l));
+});

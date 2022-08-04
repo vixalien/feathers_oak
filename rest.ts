@@ -12,20 +12,25 @@ import {
 } from "./deps.ts";
 
 import {
-  Middleware,
-  Application
+  AppState,
+  RoutedFeathers,
 } from "./types.d.ts";
 
 const debug = console.debug.bind("feathers-oak/rest");
 
-const serviceMiddleware = (): Middleware => {
-  return async (context, _next) => {
+const serviceMiddleware = (): OakMiddleware<AppState> => {
+  return async (context, next) => {
+    if (!context.state.lookup) {
+      return next();
+    }
+
     const {
       headers,
       body,
       method: httpMethod,
       url: { pathname, searchParams },
     } = context.request;
+
     const methodOverride = headers.get(http.METHOD_HEADER) || undefined;
 
     const { service, params: { __id: id = null, ...route } } = context.state
@@ -50,7 +55,12 @@ const serviceMiddleware = (): Middleware => {
 
     const createArguments = http.argumentsFor[method as "get"] ||
       http.argumentsFor.default;
-    const params = { searchParams, headers, route, ...context.state.feathers };
+    const params = {
+      query: Object.fromEntries(searchParams),
+      headers: Object.fromEntries(headers),
+      route,
+      ...context.state.feathers
+    };
     const args = createArguments({ id, data: body, params });
     const contextBase = createContext(service, method, { http: {} });
     context.state.hook = contextBase;
@@ -70,50 +80,49 @@ const serviceMiddleware = (): Middleware => {
   };
 };
 
-const servicesMiddleware = (): Middleware => {
+const initializeState = (app: RoutedFeathers): OakMiddleware<AppState> => {
   return (context, next) => {
-    const app = context.app;
-    const lookup = app.lookup(context.request.url.pathname);
-
-    if (!lookup) {
-      return next();
-    }
+    context.state.app = app;
+    context.state.feathers = {
+      ...context.state.feathers,
+      provider: "rest",
+    };
+    const lookup = context.state.app.lookup(context.request.url.pathname);
 
     context.state.lookup = lookup;
 
-    return serviceMiddleware()(context, next);
+    return next();
   };
 };
 
-export const formatter: Middleware = () => { };
+export const formatter: OakMiddleware<AppState> = (_, next) => {
+  return next();
+};
 
 export type RestOptions = {
-  formatter?: Middleware;
+  formatter?: OakMiddleware<AppState>;
   // authentication?: AuthenticationSettings
 };
 
-export const rest = (feathersApp: Feathers, options?: RestOptions | Middleware) => {
-  routing()(feathersApp as any);
+export const restRouter = (feathersApp: Feathers, options?: RestOptions | OakMiddleware<AppState>) => {
+  const routedApp = feathersApp as RoutedFeathers;
+  // @ts-expect-error routing expects a different thing
+  routedApp.configure(routing());
   options = typeof options === "function" ? { formatter: options } : options;
 
   const formatterMiddleware = options?.formatter || formatter;
-  // const authenticationOptions = options.authentication
 
-  return (app: Application) => {
-    app.use((ctx, next) => {
-      ctx.app = feathersApp;
-      return next();
-    })
+  const router = new OakRouter<AppState>();
 
-    // app.use(parseAuthentication(authenticationOptions))
-    app.use(servicesMiddleware());
+  router.get("/blops", ctx => {
+    ctx.response.body = "Router must have atleast one non-USE middleware so blop"
+  });
 
-    feathersApp.mixins.push(() => {
-      const router = new OakRouter();
-      router.use(serviceMiddleware() as OakMiddleware);
-      router.use(formatterMiddleware as OakMiddleware);
+  router.all("(.*)",
+    initializeState(routedApp),
+    formatterMiddleware,
+    serviceMiddleware()
+  )
 
-      feathersApp.serviceRouter = router;
-    });
-  };
-};
+  return router;
+}
