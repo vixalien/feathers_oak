@@ -3,9 +3,9 @@ import {
   Feathers,
   FeathersParams,
   HookContext,
+  OakMiddleware,
   Router,
   Service,
-  OakMiddleware
 } from "./deps.ts";
 
 export interface RouteLookup {
@@ -27,5 +27,5 @@ export interface AppState {
   app: RoutedFeathers;
   lookup?: RouteLookup;
   hook?: HookContext;
-  feathers?: Partial<FeathersParams> & { [key: string]: any }
+  feathers?: Partial<FeathersParams> & { [key: string]: any };
 }

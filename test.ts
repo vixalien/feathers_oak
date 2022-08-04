@@ -1,5 +1,5 @@
 import { restRouter } from "./mod.ts";
-import { OakMiddleware, OakRouter, Oak, routing } from "./deps.ts";
+import { Oak, OakMiddleware, routing } from "./deps.ts";
 import { feathers } from "https://deno.land/x/feathers/mod.ts";
 
 import {
@@ -26,17 +26,23 @@ const users = db.collection<UserSchema>("feathers-test");
 
 const notFound: OakMiddleware = async (ctx, next) => {
   await next();
-  ctx.response.body = `Cannot ${ctx.request.method} ${ctx.request.url.pathname}`;
-}
+  ctx.response.body =
+    `Cannot ${ctx.request.method} ${ctx.request.url.pathname}`;
+};
 
 // initializing feathers & oak
 const app = feathers();
 const site = new Oak();
+// TODO: provide a better routing method
+// deno-lint-ignore no-explicit-any
 app.configure(routing() as any);
 
-app.use("users", new MongoService({
-  Model: users
-}));
+app.use(
+  "users",
+  new MongoService({
+    Model: users,
+  }),
+);
 
 const rest = restRouter(app);
 
@@ -45,5 +51,5 @@ site.use(rest.routes(), rest.allowedMethods());
 site.use(notFound);
 
 site.listen({
-  port: 3000
+  port: 3000,
 });

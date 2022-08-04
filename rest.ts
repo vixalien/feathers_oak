@@ -2,19 +2,16 @@
 import {
   createContext,
   defaultServiceMethods,
+  Feathers,
   getServiceOptions,
   http,
   MethodNotAllowed,
   OakMiddleware,
   OakRouter,
-  Feathers,
   routing,
 } from "./deps.ts";
 
-import {
-  AppState,
-  RoutedFeathers,
-} from "./types.d.ts";
+import { AppState, RoutedFeathers } from "./types.d.ts";
 
 const debug = console.debug.bind("feathers-oak/rest");
 
@@ -59,7 +56,7 @@ const serviceMiddleware = (): OakMiddleware<AppState> => {
       query: Object.fromEntries(searchParams),
       headers: Object.fromEntries(headers),
       route,
-      ...context.state.feathers
+      ...context.state.feathers,
     };
     const args = createArguments({ id, data: body, params });
     const contextBase = createContext(service, method, { http: {} });
@@ -104,7 +101,10 @@ export type RestOptions = {
   // authentication?: AuthenticationSettings
 };
 
-export const restRouter = (feathersApp: Feathers, options?: RestOptions | OakMiddleware<AppState>) => {
+export const restRouter = (
+  feathersApp: Feathers,
+  options?: RestOptions | OakMiddleware<AppState>,
+) => {
   const routedApp = feathersApp as RoutedFeathers;
   // @ts-expect-error routing expects a different thing
   routedApp.configure(routing());
@@ -114,15 +114,17 @@ export const restRouter = (feathersApp: Feathers, options?: RestOptions | OakMid
 
   const router = new OakRouter<AppState>();
 
-  router.get("/blops", ctx => {
-    ctx.response.body = "Router must have atleast one non-USE middleware so blop"
+  router.get("/blops", (ctx) => {
+    ctx.response.body =
+      "Router must have atleast one non-USE middleware so blop";
   });
 
-  router.all("(.*)",
+  router.all(
+    "(.*)",
     initializeState(routedApp),
     formatterMiddleware,
-    serviceMiddleware()
-  )
+    serviceMiddleware(),
+  );
 
   return router;
-}
+};
