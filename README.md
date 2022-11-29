@@ -1,6 +1,6 @@
 # feathers_oak
 
-[Feathers](https://feathersjs.com]) - [Oak](https://github.com/oakserver/oak) 🦕
+[Feathers](https://feathersjs.com) - [Oak](https://github.com/oakserver/oak) 🦕
 framework bindings and REST provider. Oak works under both Deno and NPM.
 
 ## Usage
@@ -10,6 +10,7 @@ them together so that you can use your services from oak as a REST endpoint with
 oak.
 
 ```ts
+
 // Oak
 import { Application } from "https://deno.land/x/oak/mod.ts";
 
@@ -22,12 +23,16 @@ import {
 } from "https://deno.land/x/feathers_oak/mod.ts";
 
 // we will use mongo and it's feathers adapter as an example, but you can use whatever database adapter you like
-import { MongoClient } from "https://deno.land/x/mongo/mod.ts";
+import { MongoClient, ObjectId } from "https://deno.land/x/mongo/mod.ts";
 import { MongoService } from "https://deno.land/x/feathers_mongo/mod.ts";
+
+
+// --- Services ---
 
 // initialising the mongo client & service
 const client = new MongoClient();
 await client.connect("mongodb://127.0.0.1:27017");
+const db = client.database("test");
 
 interface UserSchema {
   _id: ObjectId;
@@ -36,7 +41,6 @@ interface UserSchema {
   age: number;
 }
 
-const db = client.database("test");
 const users = db.collection<UserSchema>("users");
 const Users = new MongoService<UserSchema>({
   // set the collection
@@ -48,11 +52,17 @@ const Users = new MongoService<UserSchema>({
   },
 });
 
+
+// --- Feathers ---
+
 // creating the feathers app
 const app = feathers();
 // IMPORTANT: must initialize routing before adding services
 app.configure(routing() as any);
 app.use("users", Users);
+
+
+// --- Oak ---
 
 // creating the oak site & adding feathers REST router
 const site = new Application();
